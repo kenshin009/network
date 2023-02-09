@@ -1,0 +1,44 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div class="container-lg">
+
+        <h3 class="display-4 mb-4 text-center">All Posts</h3>
+
+        <form action="/create-post" method="post">
+            {% csrf_token %}
+            <div class="form-floating">
+                <textarea name="content" id="content" class="form-control" placeholder="Write something..."></textarea>
+            </div>
+            <button class="btn btn-primary mt-3" id="submit" type="submit" disabled>Post</button>
+        </form>
+      
+        <div class="row justify-content-center align-items-center my-5">
+            <div class="col-12">
+                {% for post in posts %}
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                      <h5 class="card-title">{{post.user}}</h5>
+                      <h6 class="card-subtitle mb-2 text-muted">{{ post.created_at }}</h6>
+                      <p class="card-text">{{ post.content }}</p>
+                      <a href="#" class="card-link">Like</a>
+                      <a href="#" class="card-link">Comment</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const submit__btn = document.querySelector('#submit')
+        const content = document.querySelector('#content')
+        content.addEventListener('input',() => {
+            if(content.value.length > 0 && content.value.trim() !== '') {
+                submit__btn.disabled = false;
+            } else {
+                submit__btn.disabled = true;
+            }
+        })
+    </script>
+{% endblock %}
