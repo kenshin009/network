@@ -8,6 +8,7 @@
         <form action="/create-post" method="post">
             {% csrf_token %}
             <div class="form-floating">
+                <label for="content" class="h4">New Post</label>
                 <textarea name="content" id="content" class="form-control" placeholder="Write something..."></textarea>
             </div>
             <button class="btn btn-primary mt-3" id="submit" type="submit" disabled>Post</button>
@@ -19,10 +20,11 @@
                 <div class="card" style="width: 100%;">
                     <div class="card-body">
                       <h5 class="card-title">{{post.user}}</h5>
-                      <h6 class="card-subtitle mb-2 text-muted">{{ post.created_at }}</h6>
+                      <h6 class="card-subtitle mb-4 text-muted">{{ post.created_at }}</h6>
                       <p class="card-text">{{ post.content }}</p>
-                      <a href="#" class="card-link">Like</a>
+                      <a href="#" class="card-link"><i class="bi bi-heart"></i> {{ post.likes }} </a>
                       <a href="#" class="card-link">Comment</a>
+                      <a href="#" class="card-link">Edit</a>
                     </div>
                 </div>
                 {% endfor %}

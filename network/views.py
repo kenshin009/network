@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render,redirect
 from django.urls import reverse
 
-from .models import User,Post
+from .models import *
 
 
 def index(request):
@@ -14,7 +14,20 @@ def index(request):
         'posts': posts
     })
 
-# Get post lists
+def profile_view(request,user):
+    print(user)
+    # Get user object
+    user_obj = User.objects.get(username=user)
+    print(user_obj)
+    # Get user profile
+    profile = Profile.objects.get(user=user_obj)
+    print(profile)
+    # Get all user's posts
+    posts = Post.objects.filter(user=user)
+    print(posts)
+    return render(request,'network/profile.html',{'profile':profile})
+
+# Create post
 def create_post(request):
     if request.method == 'POST':
         user = request.user.username
@@ -67,6 +80,10 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
+            # Create user profile for user
+            new_profile = Profile.objects.create(id_user=user.id,user=user)
+            new_profile.save()
+
         except IntegrityError:
             return render(request, "network/register.html", {
                 "message": "Username already taken."
