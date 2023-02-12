@@ -1,0 +1,29 @@
+{% extends 'network/layout.html' %}
+
+{% block body %}
+<div class="container">
+    <h3>{{profile.user.username}}</h3>
+    <p class="lead">Followers: {{ profile.followers }}</p>
+    <p class="lead">Following: {{ profile.following }}</p>
+    {% if user_request != user_profile %}
+        <button class="btn btn-primary">Follow</button>
+    {% endif %}
+    <div class="row justify-content-center align-items-center my-5">
+        <div class="col-12">
+            {% for post in posts %}
+            <div class="card" style="width: 100%;">
+                <div class="card-body">
+                  <h5 class="card-title">{{post.user}}</h5>
+                  <h6 class="card-subtitle mb-4 text-muted">{{ post.created_at }}</h6>
+                  <p class="card-text">{{ post.content }}</p>
+                  <a href="#" class="card-link" value="{{ post.likes }}">{{ post.likes }} <i class="bi bi-heart"></i> </a>
+                  <a href="#" class="card-link">Comment</a>
+                  <a href="#" class="card-link">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock%}
