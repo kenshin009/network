@@ -20,6 +20,85 @@ def index(request):
     })
 
 @csrf_exempt
+def follows(request):
+
+    if request.method == 'POST':
+        # Get new follow
+        data = json.loads(request.body)
+        # Create new follow
+        new_follow = Follow.objects.create(user_follow=data['user_follow'],user_profile=data['user_profile'])
+        new_follow.save()
+        # # Get both users and users' profiles
+        user_follow = User.objects.get(username=data['user_follow'])
+        user_profile = User.objects.get(username=data['user_profile'])
+        user_follow_p = Profile.objects.get(user=user_follow)
+        user_profile_p = Profile.objects.get(user=user_profile)
+        # # Update followers count and following count of both users' profiles
+        user_follow_p.following += 1
+        user_follow_p.save()
+        user_profile_p.followers += 1
+        user_profile_p.save()
+
+        # Modify data
+        new_data = {
+            "profile_follower": user_profile_p.followers,
+            "already_followed": True
+        }
+    elif request.method == 'PUT':
+        # Get follow json data
+        data = json.loads(request.body)
+        # Check whether request user has already followed or not
+        follow_exist = Follow.objects.filter(user_follow=data['user_follow'],user_profile=data['user_profile']).first()
+        if follow_exist is not None:
+            # if already followed,delete it
+            follow_exist.delete()
+            # Get both users and users' profiles
+            user_follow = User.objects.get(username=data['user_follow'])
+            user_profile = User.objects.get(username=data['user_profile'])
+            user_follow_p = Profile.objects.get(user=user_follow)
+            user_profile_p = Profile.objects.get(user=user_profile)
+            # # Update followers count and following count of both users' profiles
+            user_follow_p.following -= 1
+            user_follow_p.save()
+            user_profile_p.followers -= 1
+            user_profile_p.save()
+
+            # Modify data
+            new_data = {
+                "profile_follower": user_profile_p.followers,
+                "already_followed": False
+            }
+            print('already followed')
+        else:
+            # if not already followed, create new follow
+            new_follow = Follow.objects.create(user_follow=data['user_follow'],user_profile=data['user_profile'])
+            new_follow.save()
+            # # Get both users and users' profiles
+            user_follow = User.objects.get(username=data['user_follow'])
+            user_profile = User.objects.get(username=data['user_profile'])
+            user_follow_p = Profile.objects.get(user=user_follow)
+            user_profile_p = Profile.objects.get(user=user_profile)
+            # # Update followers count and following count of both users' profiles
+            user_follow_p.following += 1
+            user_follow_p.save()
+            user_profile_p.followers += 1
+            user_profile_p.save()
+
+            # Modify data
+            new_data = {
+                "profile_follower": user_profile_p.followers,
+                "already_followed": True
+            }
+            print('Not followed yet')
+            return JsonResponse(new_data,status=200)
+
+        return JsonResponse(new_data,status=200)
+    else:
+        return JsonResponse({"Error":"Post request required"},status=404)
+
+    return JsonResponse(new_data,status=200)
+
+@csrf_exempt
 def like_posts(request):
     
     if request.method == "POST":
@@ -104,18 +183,21 @@ def like_post_detail(request,post_id):
 @login_required(login_url='login')
 def profile_view(request,user):
   
-    # Get user object
-    user_obj = User.objects.get(username=user)
-    # Get user profile
-    profile = Profile.objects.get(user=user_obj)
-    # Get all user's posts
+    # Get user_profile
+    user_profile = User.objects.get(username=user)
+    # Get profile of user_profile
+    profile = Profile.objects.get(user=user_profile)
+    # Get all user_profile's posts
     posts = Post.objects.filter(user=user)
+    # Check request user has already followed this user profile
+    already_followed = Follow.objects.filter(user_follow=request.user.username,user_profile=user_profile.username).first()
 
     return render(request,'network/profile.html',{
         'profile':profile,
         'posts':posts,
-        'user_profile': user_obj,
-        'user_request': request.user
+        'user_profile': user_profile.username,
+        'user_request': request.user.username,
+        'already_followed': already_followed
     })
 
 @login_required(login_url='login')

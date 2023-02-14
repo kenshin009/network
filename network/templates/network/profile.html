@@ -1,12 +1,16 @@
 {% extends 'network/layout.html' %}
-
+{% load static %}
 {% block body %}
 <div class="container">
     <h3>{{profile.user.username}}</h3>
-    <p class="lead">Followers: {{ profile.followers }}</p>
-    <p class="lead">Following: {{ profile.following }}</p>
+    Followers: <p id="follower_count" class="lead">{{ profile.followers }}</p>
+    Following: <p class="lead">{{ profile.following }}</p>
     {% if user_request != user_profile %}
-        <button class="btn btn-primary">Follow</button>
+        <!-- Get user_follow -->
+        <input id="user_follow" type="hidden" value="{{ user_request}}"> 
+        <!-- Get user_profile -->
+        <input id="user_profile" type="hidden" value="{{ user_profile }}"> 
+        <button id="follow_btn" class="btn btn-primary"> {% if already_followed %} Unfollow {% else %} Follow {% endif %}</button>
     {% endif %}
     <div class="row justify-content-center align-items-center my-5">
         <div class="col-12">
@@ -25,5 +29,8 @@
         </div>
     </div>
 </div>
+
+<!-- Follow features -->
+<script src="{% static 'network/follow.js' %}"></script>
 
 {% endblock%}

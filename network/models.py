@@ -35,3 +35,11 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class Follow(models.Model):
+
+    user_follow = models.CharField(max_length=100)
+    user_profile =  models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.user_profile
