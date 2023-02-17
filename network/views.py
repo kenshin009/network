@@ -13,10 +13,41 @@ from .models import *
 def index(request):
     # Get all posts
     posts = Post.objects.all()
-    likes = LikePost.objects.all()
+     # check how many posts this user liked
+    liked_posts_all = []
+    for post in posts:
+        liked_posts = LikePost.objects.filter(user=request.user.username,post_id=post.id)
+        liked_posts_all.extend(liked_posts)
+
     return render(request, "network/index.html",{
         'posts': posts,
-        'likes': likes
+        'liked_posts': liked_posts_all
+    })
+
+def following(request):
+    # Get all follows of request user
+    follows = Follow.objects.filter(user_follow=request.user)
+    # Get all user_profiles that request user has followed
+    users_profiles = []
+    for follow in follows:
+       users_profiles.append(follow.user_profile)
+    # Get all posts of the user_profiles that request user has followed
+    all_posts = []
+    for user in users_profiles:
+       posts = Post.objects.filter(user=user)
+       all_posts.extend(posts)
+       print(all_posts)
+    
+    # check how many posts this user liked
+    liked_posts_all = []
+    for post in all_posts:
+        liked_posts = LikePost.objects.filter(user=request.user.username,post_id=post.id)
+        liked_posts_all.extend(liked_posts)
+
+    return render(request,'network/following.html',{
+        'posts': all_posts,
+        'user_request': request.user.username,
+        'liked_posts': liked_posts_all
     })
 
 @csrf_exempt
@@ -105,7 +136,7 @@ def like_posts(request):
         # Get new like
         data = json.loads(request.body)
         # Create new like
-        new_like = LikePost.objects.create(id=data['id'],post_id=data['post_id'],user=data['user'])
+        new_like = LikePost.objects.create(post_id=data['post_id'],user=data['user'])
         new_like.save()
         # Modify data
         data = {
@@ -192,12 +223,18 @@ def profile_view(request,user):
     # Check request user has already followed this user profile
     already_followed = Follow.objects.filter(user_follow=request.user.username,user_profile=user_profile.username).first()
 
+    liked_posts_all = []
+    for post in posts:
+        liked_posts = LikePost.objects.filter(user=request.user.username,post_id=post.id)
+        liked_posts_all.extend(liked_posts)
+
     return render(request,'network/profile.html',{
         'profile':profile,
         'posts':posts,
         'user_profile': user_profile.username,
         'user_request': request.user.username,
-        'already_followed': already_followed
+        'already_followed': already_followed,
+        'liked_posts': liked_posts_all
     })
 
 @login_required(login_url='login')

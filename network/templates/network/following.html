@@ -1,32 +1,12 @@
-{% extends 'network/layout.html' %}
+{% extends "network/layout.html" %}
 {% load static %}
 {% block body %}
-<div class="container">
-    <div class="row justify-content-center align-items-center my-5">
-        <div class="col-3 ">
-            <h2>{{profile.user.username}}</h2>
-        </div>
-        <div class="col-3">
-            <h5> Followers:</h5> <p id="follower_count" class="lead">{{ profile.followers }}</p>
-        </div>
-        <div class="col-3">
-            <h5> Following:</h5>  <p class="lead">{{ profile.following }}</p>
-        </div>
-        <div class="col-3">
-            {% if user_request != user_profile %}
-                <!-- Get user_follow -->
-                <input id="user_follow" type="hidden" value="{{ user_request}}"> 
-                <!-- Get user_profile -->
-                <input id="user_profile" type="hidden" value="{{ user_profile }}"> 
-                <button id="follow_btn" class="btn btn-primary"> {% if already_followed %} Unfollow {% else %} Follow {% endif %}</button>
-            {% endif %}
-        </div>
+<div class="container-lg">
 
-    </div>
-    
+    <h3 class="display-4 mb-4 text-center">All Following Posts</h3>
+  
     <div class="row justify-content-center align-items-center my-5">
         <div class="col-12">
-        {% if posts %}
             {% for post in posts %}
             <div class="card" style="width: 100%;">
                 <div class="card-body">
@@ -175,17 +155,13 @@
             </script>
                     
                 </div>
-            </div>        
-        {% endfor %}
+            </div>
 
-        {% else %}
-            <h4 class="text-center text-muted display-4 mt-5">No posts yet</h4>
-        {% endif %}
+             
+        {% endfor %}
         </div>
     </div>
 </div>
 
-<!-- Follow features -->
-<script src="{% static 'network/follow.js' %}"></script>
 
-{% endblock%}
+{% endblock %}  
