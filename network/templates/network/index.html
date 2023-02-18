@@ -2,187 +2,265 @@
 {% load static %}
 {% block body %}
     <div class="container-lg">
+        <section id="create_post">
+            <h3 class="display-4 mb-4 text-center">All Posts</h3>
 
-        <h3 class="display-4 mb-4 text-center">All Posts</h3>
-
-        <form action="/create-post" method="post">
-            {% csrf_token %}
-            <div class="form-floating">
-                <label for="content" class="h4">New Post</label>
-                <textarea name="content" id="content" class="form-control" placeholder="Write something..."></textarea>
-            </div>
-            <button class="btn btn-primary mt-3" id="submit" type="submit" disabled>Post</button>
-        </form>
-      
+            <form action="/create-post" method="post">
+                {% csrf_token %}
+                <div class="form-floating">
+                    <label for="content" class="h4">New Post</label>
+                    <textarea name="content" id="content" class="form-control" placeholder="Write something..."></textarea>
+                </div>
+                <button class="btn btn-primary mt-3" id="submit" type="submit" disabled>Post</button>
+            </form>
+        </section>
+ 
         <div class="row justify-content-center align-items-center my-5">
-            <div class="col-12">
-                {% for post in posts %}
-            <div class="card" style="width: 100%;">
-                <div class="card-body">
-                    <h5 class="card-title"><a class="text-dark" href="{% url 'profile_view' post.user %}"><strong>{{post.user}}</strong></a></h5>
-                    <h6 class="card-subtitle mb-4 text-muted">{{ post.created_at }}</h6>
-                    <p class="card-text">{{ post.content }}</p>
-                    <!-- to get the post id of the specific post -->
-                    <input id="post_id{{post.id}}" type="hidden" value="{{ post.id }}">
-                    <!-- To get the username of request user -->
-                    <input id="user{{post.id}}" type="hidden" value="{{ user.username }}">
-                   
-                    <span id="like_count{{post.id}}">{{ post.likes }}</span>
-                  
+        <div class="col-12">
 
-                    <button type="button" id="like{{post.id}}" class="like btn btn-outline-primary" value="like">
+            <!-- Add pagination feature -->
+            <nav aria-label="post pages">  
+                    
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+                 
+                <ul class="pagination justify-content-center">
 
-                        {% if liked_posts %}
-                        {% for liked_post in liked_posts %}
-                                {% if post.id == liked_post.post_id %}
-                                    <i id="heart{{post.id}}" class="bi bi-heart-fill"></i> 
-                                {% else %}
-                                    <span class=""></span>
-                                {% endif %}
-                        {% endfor %}
-                        {% else %}
-                            <i id="heart{{post.id}}" class="bi bi-heart"></i> 
-                        {% endif %}
-                    </button> 
-                    <!-- <a href="#" class="card-link">Comment</a> -->
-                    {% if user_request == post.user %}
-                        <a href="#" class="card-link">Edit</a>
-                    {% else %}
-                        <div></div>
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">  
+                        <a href="?page=1" class="page-link">&laquo; first</a>
+                    </li>
+                    <li class="page-item">
+                        <a href="?page={{ page_obj.previous_page_number }}" class="page-link">previous</a>
+                    </li>
+                        
                     {% endif %}
-                    <!-- Like feature -->
-                    <script>
-                            document.querySelector('#like{{post.id}}').addEventListener('click',handleClick)
+      
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                         <a href="?page={{ page_obj.next_page_number }}" class="page-link">next</a>
+                    </li>
+                    <li class="page-item">
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">last &raquo;</a>
+                    </li>
+                        
+                    {% endif %}
+                
+                </ul> 
+            </nav>
+            
 
-                            function handleClick() {
-                                // Get total likes of the post
-                                let likes = parseInt(document.querySelector('#like_count{{post.id}}').innerHTML) 
-                                // Get post id of the post
-                                const post_id = document.querySelector('#post_id{{post.id}}').value
-                                // Get the username of the request user
-                                const user = document.querySelector('#user{{post.id}}').value
+            <section id="posts">
+            {% for post in page_obj %} 
+                
+                    <div class="card" style="width: 100%;">
+                        <div class="card-body">
+                            <h5 class="card-title"><a class="text-dark" href="{% url 'profile_view' post.user %}"><strong>{{post.user}}</strong></a></h5>
+                            <h6 class="card-subtitle mb-4 text-muted">{{ post.created_at }}</h6>
+                            <p class="card-text">{{ post.content }}</p>
+                            <!-- to get the post id of the specific post -->
+                            <input id="post_id{{post.id}}" type="hidden" value="{{ post.id }}">
+                            <!-- To get the username of request user -->
+                            <input id="user{{post.id}}" type="hidden" value="{{ user.username }}">
+                        
+                            <span id="like_count{{post.id}}">{{ post.likes }}</span>
+                        
 
-                                if (likes === 0 ) {
-                                    // Change heart icon
-                                    document.querySelector('#heart{{post.id}}').className = 'bi bi-heart-fill'
-                                    // Create new like obj
-                                    const newLike = {
-                                            post_id: post_id,
-                                            user: user
-                                        }
+                            <button type="button" id="like{{post.id}}" class="like btn btn-outline-primary" value="like">
 
-                                    // Fetch like-posts url and create new like
-                                    fetch('/like-posts',{
-                                        method: 'POST',
-                                        body: JSON.stringify(newLike),
-                                    })
-                                    .then((res) => res.json())
-                                    .then((data) => {
-                                        console.log(data)
-                                    })
-                                    .catch((err) => console.log(err))
+                                {% if liked_posts %}
+                                {% for liked_post in liked_posts %}
+                                        {% if post.id == liked_post.post_id %}
+                                            <i id="heart{{post.id}}" class="bi bi-heart-fill"></i> 
+                                        {% else %}
+                                            <span class=""></span>
+                                        {% endif %}
+                                {% endfor %}
+                                {% else %}
+                                    <i id="heart{{post.id}}" class="bi bi-heart"></i> 
+                                {% endif %}
+                            </button> 
+                            <!-- <a href="#" class="card-link">Comment</a> -->
+                            {% if user.username == post.user %}
+                                <button id="edit_btn{{post.id}}" value="{{ post.content }}" class="card-link btn btn-outline-primary">Edit</button> 
+                                <!-- Edit features JS -->
+                                <script>
+                                    document.querySelector('#edit_btn{{post.id}}').addEventListener('click',(e) => {
+                                    // Hide all views except edit post view
+                                    document.querySelector('#create_post').className = 'd-none';
+                                    document.querySelector('#posts').className = 'd-none';
+                                    document.querySelector('#edit_post').classList.toggle('d-block'); 
+                                    document.querySelector('#content_edit').focus();
+                                    // Show the recent text in textarea
+                                    document.querySelector('#content_edit').innerHTML = e.target.value;
+                                    // 
+                                    document.querySelector('#post_id').value = '{{post.id}}'
+                                })
+                                </script>                              
+                            {% else %}
+                                <div></div>
+                            {% endif %}
+                            <!-- Like feature -->
+                            <script>
+                                    document.querySelector('#like{{post.id}}').addEventListener('click',handleClick)
 
-                                    // Get the liked post
-                                    const liked_post = {
-                                        "id": post_id
-                                    }
-                                    // Fetch post_detail url and increment likes using put method
-                                    fetch(`/posts/${post_id}`,{
-                                        method: 'PUT',
-                                        body: JSON.stringify(liked_post)
-                                    })
-                                    .then((res) => res.json())
-                                    .then((data) => {
-                                        {
-                                            // Show total likes in dom
-                                            document.querySelector('#like_count{{post.id}}').innerHTML = data['likes']
-                                            // Change like button value
-                                            
-                                        }
-                                    })
-                                    .catch((err) => console.log(err))
+                                    function handleClick() {
+                                        // Get total likes of the post
+                                        let likes = parseInt(document.querySelector('#like_count{{post.id}}').innerHTML) 
+                                        // Get post id of the post
+                                        const post_id = document.querySelector('#post_id{{post.id}}').value
+                                        // Get the username of the request user
+                                        const user = document.querySelector('#user{{post.id}}').value
 
-                                } else {
-                                    // Filter likes of the liked post using fetch
-                                    fetch(`/like-post-detail/${post_id}`)
-                                    .then((res) => res.json())
-                                    .then((data) => {
-                                        // Check this user has already liked this post or not
-                                        data.response.forEach((like) => {
-                                            // Get specific like obj
-                                            const like_obj = {
-                                                "post_id": post_id,
-                                                "user": user
-                                            }
-                                            
-                                            if (like.user === user) {
-                                                
-                                            // already liked the post
-                                            // change the heart icon
-                                            document.querySelector('#heart{{post.id}}').className = 'bi bi-heart'
-                                        
-                                            // Fetch put to remove like and decrement like count by 1
-                                            fetch(`/like-post-detail/${post_id}`,{
-                                            method: 'PUT',
-                                            body: JSON.stringify(like_obj),
+                                        if (likes === 0 ) {
+                                            // Change heart icon
+                                            document.querySelector('#heart{{post.id}}').className = 'bi bi-heart-fill'
+                                            // Create new like obj
+                                            const newLike = {
+                                                    post_id: post_id,
+                                                    user: user
+                                                }
+
+                                            // Fetch like-posts url and create new like
+                                            fetch('/like-posts',{
+                                                method: 'POST',
+                                                body: JSON.stringify(newLike),
                                             })
                                             .then((res) => res.json())
                                             .then((data) => {
-                                                // Show the total likes in dom
-                                                document.querySelector('#like_count{{post.id}}').innerHTML =  data['likes']
                                                 console.log(data)
                                             })
                                             .catch((err) => console.log(err))
 
-                                            } else { 
-                                                
-                                            // Have not liked the post
-                                            // Change the heart icon
-                                            document.querySelector('#heart{{post.id}}').className = 'bi bi-heart-fill'
-            
-                                            // Fetch put to create new like and increment like count by 1
-                                            fetch(`/like-post-detail/${post_id}`,{
-                                            method: 'PUT',
-                                            body: JSON.stringify(like_obj),
+                                            // Get the liked post
+                                            const liked_post = {
+                                                "id": post_id
+                                            }
+                                            // Fetch post_detail url and increment likes using put method
+                                            fetch(`/posts/${post_id}`,{
+                                                method: 'PUT',
+                                                body: JSON.stringify(liked_post)
                                             })
                                             .then((res) => res.json())
                                             .then((data) => {
-                                                // Show the total likes in dom
-                                                
-                                                document.querySelector('#like_count{{post.id}}').innerHTML =  data['likes']
-                                                
+                                                {
+                                                    // Show total likes in dom
+                                                    document.querySelector('#like_count{{post.id}}').innerHTML = data['likes']
+                                                    // Change like button value
+                                                    
+                                                }
                                             })
                                             .catch((err) => console.log(err))
 
-                                            }
-                                        })
-                                            
-                                        
-                                    })
-                                }
-                            }
-            </script>
-                    
-                </div>
-            </div>
+                                        } else {
+                                            // Filter likes of the liked post using fetch
+                                            fetch(`/like-post-detail/${post_id}`)
+                                            .then((res) => res.json())
+                                            .then((data) => {
+                                                // Check this user has already liked this post or not
+                                                data.response.forEach((like) => {
+                                                    // Get specific like obj
+                                                    const like_obj = {
+                                                        "post_id": post_id,
+                                                        "user": user
+                                                    }
+                                                    
+                                                    if (like.user === user) {
+                                                        
+                                                    // already liked the post
+                                                    // change the heart icon
+                                                    document.querySelector('#heart{{post.id}}').className = 'bi bi-heart'
+                                                
+                                                    // Fetch put to remove like and decrement like count by 1
+                                                    fetch(`/like-post-detail/${post_id}`,{
+                                                    method: 'PUT',
+                                                    body: JSON.stringify(like_obj),
+                                                    })
+                                                    .then((res) => res.json())
+                                                    .then((data) => {
+                                                        // Show the total likes in dom
+                                                        document.querySelector('#like_count{{post.id}}').innerHTML =  data['likes']
+                                                        console.log(data)
+                                                    })
+                                                    .catch((err) => console.log(err))
 
-             
-        {% endfor %}
-            </div>
+                                                    } else { 
+                                                        
+                                                    // Have not liked the post
+                                                    // Change the heart icon
+                                                    document.querySelector('#heart{{post.id}}').className = 'bi bi-heart-fill'
+                    
+                                                    // Fetch put to create new like and increment like count by 1
+                                                    fetch(`/like-post-detail/${post_id}`,{
+                                                    method: 'PUT',
+                                                    body: JSON.stringify(like_obj),
+                                                    })
+                                                    .then((res) => res.json())
+                                                    .then((data) => {
+                                                        // Show the total likes in dom
+                                                        
+                                                        document.querySelector('#like_count{{post.id}}').innerHTML =  data['likes']
+                                                        
+                                                    })
+                                                    .catch((err) => console.log(err))
+
+                                                    }
+                                                })
+                                                    
+                                                
+                                            })
+                                        }
+                                    }
+                            </script>
+                        
+                        </div>
+                    </div>
+        
+            {% endfor %}
+            </section> 
+
+            <section id="edit_post" class="d-none">
+                <form action="{% url 'edit_post' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-floating">
+                        <label for="content" class="h4">Edit Post</label>
+                        <!-- To store id of the edit post -->
+                        <input id="post_id" name="post_id" type="hidden" value="">
+                        <textarea name="content" id="content_edit" class="form-control"></textarea>
+                    </div>
+                    <button class="btn btn-primary mt-3" id="submit_edit" type="submit" disabled>Post</button>
+                </form>
+            </section>
         </div>
+        </div>
+
     </div> 
+
       <!-- Prevent empty post -->
     <script>
-            const submit__btn = document.querySelector('#submit')
-            const content = document.querySelector('#content')
-            content.addEventListener('input',() => {
-                if(content.value.length > 0 && content.value.trim() !== '') {
-                    submit__btn.disabled = false;
-                } else {
-                    submit__btn.disabled = true;
-                }
-            })
+        const submit__btn = document.querySelector('#submit')
+        const content = document.querySelector('#content')
+        content.addEventListener('input',() => {
+            if(content.value.length > 0 && content.value.trim() !== '') {
+                submit__btn.disabled = false;
+            } else {
+                submit__btn.disabled = true;
+            }
+        })
+
+        // Prevent empty post for EDIT POST Form
+        const submit__edit = document.querySelector('#submit_edit')
+        const content_edit = document.querySelector('#content_edit')
+        content_edit.addEventListener('input',() => {
+            if(content_edit.value.length > 0 && content_edit.value.trim() !== '') {
+                submit__edit.disabled = false;
+            } else {
+                submit__edit.disabled = true;
+            }
+        })
     </script>
+
     
    
 {% endblock %}

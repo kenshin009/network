@@ -5,6 +5,8 @@ from django.shortcuts import render,redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
+from datetime import datetime
 import json
 from .models import *
 
@@ -13,6 +15,12 @@ from .models import *
 def index(request):
     # Get all posts
     posts = Post.objects.all()
+    # Add pagination
+    paginator = Paginator(posts,10) # Show 10 posts per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
      # check how many posts this user liked
     liked_posts_all = []
     for post in posts:
@@ -20,10 +28,25 @@ def index(request):
         liked_posts_all.extend(liked_posts)
 
     return render(request, "network/index.html",{
-        'posts': posts,
-        'liked_posts': liked_posts_all
+        'liked_posts': liked_posts_all,
+        'page_obj': page_obj
     })
 
+@login_required(login_url='login')
+def edit_post(request):
+    if request.method == 'POST':
+        post_id = request.POST['post_id']
+        content = request.POST['content']
+        print(post_id,content)
+        edit_post = Post.objects.get(id=post_id)
+        edit_post.content = content
+        edit_post.created_at = datetime.now()
+        edit_post.save()
+    else:
+        return JsonResponse({"Error":"POST request required"},status=404)
+    return redirect('/')
+
+@login_required(login_url='login')
 def following(request):
     # Get all follows of request user
     follows = Follow.objects.filter(user_follow=request.user)
@@ -36,7 +59,12 @@ def following(request):
     for user in users_profiles:
        posts = Post.objects.filter(user=user)
        all_posts.extend(posts)
-       print(all_posts)
+    
+     # Add pagination
+    paginator = Paginator(all_posts,10) # Show 10 posts per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     # check how many posts this user liked
     liked_posts_all = []
@@ -45,9 +73,9 @@ def following(request):
         liked_posts_all.extend(liked_posts)
 
     return render(request,'network/following.html',{
-        'posts': all_posts,
         'user_request': request.user.username,
-        'liked_posts': liked_posts_all
+        'liked_posts': liked_posts_all,
+        'page_obj': page_obj
     })
 
 @csrf_exempt
@@ -125,7 +153,7 @@ def follows(request):
 
         return JsonResponse(new_data,status=200)
     else:
-        return JsonResponse({"Error":"Post request required"},status=404)
+        return JsonResponse({"Error":"Post or Put request required"},status=404)
 
     return JsonResponse(new_data,status=200)
 
@@ -220,6 +248,11 @@ def profile_view(request,user):
     profile = Profile.objects.get(user=user_profile)
     # Get all user_profile's posts
     posts = Post.objects.filter(user=user)
+     # Add pagination
+    paginator = Paginator(posts,10) # Show 10 posts per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     # Check request user has already followed this user profile
     already_followed = Follow.objects.filter(user_follow=request.user.username,user_profile=user_profile.username).first()
 
@@ -230,7 +263,7 @@ def profile_view(request,user):
 
     return render(request,'network/profile.html',{
         'profile':profile,
-        'posts':posts,
+        'page_obj':page_obj,
         'user_profile': user_profile.username,
         'user_request': request.user.username,
         'already_followed': already_followed,
@@ -248,16 +281,6 @@ def create_post(request):
         return redirect('/')
     else:
         return redirect('/')
-
-def posts_list(request):
-
-    # Get all the posts
-    posts = Post.objects.all()
-    posts_list = [{"id":post.id,"user":post.user,"content":post.content,"created_at":post.created_at,"likes":post.likes} for post in posts]
-    data = {
-        "response": posts_list,
-    }
-    return JsonResponse(data)
 
 @csrf_exempt
 def post_detail(request,post_id):

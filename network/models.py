@@ -13,7 +13,7 @@ class Post(models.Model):
     likes = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['-created_at']
         
     def __str__(self):
         return self.user

@@ -5,9 +5,9 @@ from . import views
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path('edit-post',views.edit_post,name='edit_post'),
     path('following',views.following,name='following'),
     path('follows',views.follows,name='follows'),
-    path('posts',views.posts_list,name='posts_list'),
     path('posts/<int:post_id>',views.post_detail,name='post_detail'),
     path('like-posts',views.like_posts,name='like_posts'),
     path('like-post-detail/<int:post_id>',views.like_post_detail,name='like_post_detail'),
