@@ -80,7 +80,7 @@
                                 {% if post.id == liked_post.post_id %}
                                     <i id="heart{{post.id}}" class="bi bi-heart-fill"></i> 
                                 {% else %}
-                                    <span class=""></span>
+                                    <i id="heart{{post.id}}" class="bi bi-heart"></i>
                                 {% endif %}
                         {% endfor %}
                         {% else %}
@@ -193,7 +193,7 @@
                                                 // Show the total likes in dom
                                                 
                                                 document.querySelector('#like_count{{post.id}}').innerHTML =  data['likes']
-                                                
+                                                console.log(data['likes'])
                                             })
                                             .catch((err) => console.log(err))
 
@@ -204,7 +204,7 @@
                                     })
                                 }
                             }
-            </script>
+                    </script>
                     
                 </div>
             </div>        

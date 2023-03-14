@@ -74,7 +74,7 @@
                                         {% if post.id == liked_post.post_id %}
                                             <i id="heart{{post.id}}" class="bi bi-heart-fill"></i> 
                                         {% else %}
-                                            <span class=""></span>
+                                            <i id="heart{{post.id}}" class="bi bi-heart"></i> 
                                         {% endif %}
                                 {% endfor %}
                                 {% else %}
@@ -122,7 +122,7 @@
                                                     user: user
                                                 }
 
-                                            // Fetch like-posts url and create new like
+                                            // Fetch like-posts url with POST method and create new like
                                             fetch('/like-posts',{
                                                 method: 'POST',
                                                 body: JSON.stringify(newLike),
@@ -137,7 +137,7 @@
                                             const liked_post = {
                                                 "id": post_id
                                             }
-                                            // Fetch post_detail url and increment likes using put method
+                                            // Fetch post_detail url using PUT and increment likes using put method
                                             fetch(`/posts/${post_id}`,{
                                                 method: 'PUT',
                                                 body: JSON.stringify(liked_post)
@@ -152,7 +152,7 @@
                                                 }
                                             })
                                             .catch((err) => console.log(err))
-
+                                        // If there is like in this post
                                         } else {
                                             // Filter likes of the liked post using fetch
                                             fetch(`/like-post-detail/${post_id}`)
@@ -168,7 +168,7 @@
                                                     
                                                     if (like.user === user) {
                                                         
-                                                    // already liked the post
+                                                    // If this user has already liked the post
                                                     // change the heart icon
                                                     document.querySelector('#heart{{post.id}}').className = 'bi bi-heart'
                                                 
@@ -187,7 +187,7 @@
 
                                                     } else { 
                                                         
-                                                    // Have not liked the post
+                                                    //If this user has not liked the post
                                                     // Change the heart icon
                                                     document.querySelector('#heart{{post.id}}').className = 'bi bi-heart-fill'
                     
