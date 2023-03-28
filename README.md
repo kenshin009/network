@@ -9,7 +9,8 @@ Python 3 must be installed on your machine. You can download it from https://www
 pip (Python package manager) must also be installed on your machine. You can check if it's installed by running pip --version in your terminal. If it's not installed, you can install it using the instructions at https://pip.pypa.io/en/stable/installing/.
 
 ## Installation
-Clone the repository from GitHub by running the following command in your terminal: `git clone https://github.com/kenshin009/network.git`
-Then, in your terminal, cd into **network** directory.
-Run `pip install -r requirements.txt` in your terminal.
-Run `python manage.py runserver` in your terminal.
+1. Clone the repository from GitHub by running the following command in your terminal: 
+    `git clone https://github.com/kenshin009/network.git`
+2. Then, in your terminal, cd into **network** directory.
+3. Run `pip install -r requirements.txt` in your terminal.
+4. Run `python manage.py runserver` in your terminal.
