@@ -1,0 +1,5 @@
+.nav-link[aria-control='page'] {
+    border: 1px solid darkcyan;
+    background-color: white;
+    border-radius: 50%;
+}
